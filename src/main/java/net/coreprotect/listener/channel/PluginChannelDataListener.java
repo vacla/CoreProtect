@@ -17,20 +17,20 @@ import net.coreprotect.utility.Chat;
 import net.coreprotect.utility.Color;
 import net.coreprotect.utility.Util;
 
-public class PluginChannelListener implements Listener {
+public class PluginChannelDataListener implements Listener {
 
     public static final String pluginChannel = "coreprotect:data";
-    private static PluginChannelListener instance;
+    private static PluginChannelDataListener instance;
 
-    public PluginChannelListener() {
+    public PluginChannelDataListener() {
         instance = this;
     }
 
-    public static PluginChannelListener getInstance() {
+    public static PluginChannelDataListener getInstance() {
         return instance;
     }
 
-    public void sendData(CommandSender commandSender, long timeAgo, Phrase phrase, String selector, String resultUser, String target, int amount, int x, int y, int z, int worldId, String rbFormat, boolean isContainer, boolean added) throws IOException {
+    public void sendData(CommandSender commandSender, long timeAgo, Phrase phrase, String selector, String resultUser, String target, int amount, int x, int y, int z, int worldId, String rbFormat, boolean isContainer, boolean added, String tooltip) throws IOException {
         if (!PluginChannelHandshakeListener.getInstance().isPluginChannelPlayer(commandSender)) {
             return;
         }
@@ -53,6 +53,7 @@ public class PluginChannelListener implements Listener {
         msgOut.writeBoolean(!rbFormat.isEmpty());
         msgOut.writeBoolean(isContainer);
         msgOut.writeBoolean(added);
+        msgOut.writeUTF(tooltip);
         if (Config.getGlobal().NETWORK_DEBUG) {
             Chat.console(String.valueOf(timeAgo * 1000));
             Chat.console(phraseSelector);
@@ -66,6 +67,7 @@ public class PluginChannelListener implements Listener {
             Chat.console(String.valueOf(!rbFormat.isEmpty()));
             Chat.console(String.valueOf(isContainer));
             Chat.console(String.valueOf(added));
+            Chat.console(tooltip);
             Chat.console("");
         }
 
@@ -181,6 +183,7 @@ public class PluginChannelListener implements Listener {
         String rbFormat = "test";
         String message = "This is a test";
         boolean sign = true;
+        String tooltip = "This is is a test tooltip";
 
         switch (type) {
             case "2":
@@ -193,7 +196,7 @@ public class PluginChannelListener implements Listener {
                 sendUsernameData(commandSender, timeAgo, resultUser, "Arne");
                 break;
             default:
-                sendData(commandSender, timeAgo, Phrase.LOOKUP_CONTAINER, selector, resultUser, "clay_ball", amount, x, y, z, worldId, rbFormat, false, true);
+                sendData(commandSender, timeAgo, Phrase.LOOKUP_CONTAINER, selector, resultUser, "clay_ball", amount, x, y, z, worldId, rbFormat, false, true, tooltip);
                 break;
         }
 
@@ -205,7 +208,7 @@ public class PluginChannelListener implements Listener {
             return;
         }
 
-        PluginChannelListener.getInstance().sendCoreProtectData((Player) commandSender, msgBytes);
+        PluginChannelDataListener.getInstance().sendCoreProtectData((Player) commandSender, msgBytes);
     }
 
     private void sendCoreProtectData(Player player, byte[] data) {

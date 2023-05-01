@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Locale;
 
+import net.coreprotect.command.LookupCommand;
+import net.coreprotect.listener.channel.PluginChannelResponseListener;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.command.CommandSender;
@@ -12,7 +14,7 @@ import net.coreprotect.config.ConfigHandler;
 import net.coreprotect.database.statement.UserStatement;
 import net.coreprotect.language.Phrase;
 import net.coreprotect.language.Selector;
-import net.coreprotect.listener.channel.PluginChannelListener;
+import net.coreprotect.listener.channel.PluginChannelDataListener;
 import net.coreprotect.utility.Color;
 import net.coreprotect.utility.Util;
 
@@ -131,7 +133,7 @@ public class BlockLookup {
                 }
 
                 resultTextBuilder.append(timeAgo + " " + tag + " ").append(Phrase.build(phrase, Color.DARK_AQUA + rbFormat + resultUser + Color.WHITE + rbFormat, Color.DARK_AQUA + rbFormat + target + Color.WHITE, selector)).append("\n");
-                PluginChannelListener.getInstance().sendData(commandSender, resultTime, phrase, selector, resultUser, target, -1, x, y, z, worldId, rbFormat, false, tag.contains("+"));
+                PluginChannelDataListener.getInstance().sendData(commandSender, resultTime, phrase, selector, resultUser, target, -1, x, y, z, worldId, rbFormat, false, tag.contains("+"), "");
             }
 
             resultText = resultTextBuilder.toString();
@@ -141,6 +143,10 @@ public class BlockLookup {
                 if (count > limit) {
                     String pageInfo = Color.WHITE + "-----\n";
                     pageInfo = pageInfo + Util.getPageNavigation(command, page, totalPages) + "\n";
+                    if (page < totalPages) {
+                        boolean isNetworkCommand = ConfigHandler.isNetworkCommand.get(commandSender.getName());
+                        PluginChannelResponseListener.getInstance().sendData(commandSender, (page + 1)+"/"+totalPages+","+isNetworkCommand, LookupCommand.typeLookupPacket + "Page");
+                    }
                     resultText = resultText + pageInfo;
                 }
             }

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.coreprotect.command.LookupCommand;
+import net.coreprotect.listener.channel.PluginChannelResponseListener;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 
@@ -14,7 +16,7 @@ import net.coreprotect.config.ConfigHandler;
 import net.coreprotect.database.statement.UserStatement;
 import net.coreprotect.language.Phrase;
 import net.coreprotect.language.Selector;
-import net.coreprotect.listener.channel.PluginChannelListener;
+import net.coreprotect.listener.channel.PluginChannelDataListener;
 import net.coreprotect.utility.Color;
 import net.coreprotect.utility.Util;
 
@@ -122,7 +124,7 @@ public class SignMessageLookup {
                 }
                 found = true;
                 result.add(timeAgo + Color.WHITE + " - " + Color.DARK_AQUA + resultUser + ": " + Color.WHITE + "\n" + parsedMessage + Color.WHITE);
-                PluginChannelListener.getInstance().sendMessageData(commandSender, resultTime, resultUser, message.toString(), true, x, y, z, worldId);
+                PluginChannelDataListener.getInstance().sendMessageData(commandSender, resultTime, resultUser, parsedMessage, true, x, y, z, worldId);
             }
             results.close();
 
@@ -130,6 +132,10 @@ public class SignMessageLookup {
                 if (count > limit) {
                     result.add(Color.WHITE + "-----");
                     result.add(Util.getPageNavigation(command, page, totalPages));
+                    if (page < totalPages) {
+                        boolean isNetworkCommand = ConfigHandler.isNetworkCommand.get(commandSender.getName());
+                        PluginChannelResponseListener.getInstance().sendData(commandSender, (page + 1)+"/"+totalPages+","+isNetworkCommand, LookupCommand.typeLookupPacket + "Page");
+                    }
                 }
             }
             else {

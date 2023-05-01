@@ -6,18 +6,23 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.messaging.PluginMessageListener;
+import org.bukkit.World;
 
 import net.coreprotect.CoreProtect;
+import net.coreprotect.command.TabHandler;
 import net.coreprotect.config.Config;
+import net.coreprotect.config.ConfigHandler;
 import net.coreprotect.language.Phrase;
 import net.coreprotect.language.Selector;
 import net.coreprotect.utility.Chat;
@@ -52,7 +57,9 @@ public class PluginChannelHandshakeListener implements PluginMessageListener, Li
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        getPluginChannelPlayers().remove(event.getPlayer().getUniqueId());
+        UUID playerUuid = event.getPlayer().getUniqueId();
+        PluginChannelInputListener.getInstance().getSilentChatPlayers().remove(playerUuid);
+        getPluginChannelPlayers().remove(playerUuid);
     }
 
     @Override
@@ -81,6 +88,7 @@ public class PluginChannelHandshakeListener implements PluginMessageListener, Li
                 Chat.console(modVersion);
                 Chat.console(modId);
                 Chat.console(String.valueOf(protocolVersion));
+                Chat.console("");
             }
 
             if (protocolVersion != networkingProtocolVersion) {
@@ -103,6 +111,17 @@ public class PluginChannelHandshakeListener implements PluginMessageListener, Li
         ByteArrayOutputStream msgBytes = new ByteArrayOutputStream();
         DataOutputStream msgOut = new DataOutputStream(msgBytes);
         msgOut.writeBoolean(true);
+        String[] actionsList = TabHandler.getActions();
+        msgOut.writeInt(actionsList.length);
+        for (String action : actionsList) {
+            msgOut.writeUTF(action);
+        }
+        List<World> worlds = Bukkit.getServer().getWorlds();
+        msgOut.writeInt(worlds.size());
+        for (World world : worlds) {
+            msgOut.writeUTF(world.getName());
+        }
+        msgOut.writeUTF(ConfigHandler.EDITION_NAME + " v" + CoreProtect.getInstance().getDescription().getVersion());
 
         return msgBytes.toByteArray();
     }

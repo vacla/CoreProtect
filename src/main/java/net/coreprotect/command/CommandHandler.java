@@ -647,7 +647,7 @@ public class CommandHandler implements CommandExecutor {
                                         restricted.add(i3_material);
                                     }
                                     else {
-                                        Chat.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.INVALID_INCLUDE, i3));
+                                        Chat.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.INVALID_INCLUDE, i3), LookupCommand.typeLookupPacket);
                                         // Functions.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.MISSING_PARAMETERS, "/co help include"));
                                         return null;
                                     }
@@ -679,7 +679,7 @@ public class CommandHandler implements CommandExecutor {
                                     restricted.add(material);
                                 }
                                 else {
-                                    Chat.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.INVALID_INCLUDE, argument));
+                                    Chat.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.INVALID_INCLUDE, argument), LookupCommand.typeLookupPacket);
                                     // Functions.sendMessage(player, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.MISSING_PARAMETERS, "/co help include"));
                                     return null;
                                 }
@@ -1196,22 +1196,22 @@ public class CommandHandler implements CommandExecutor {
                     else if (user.hasPermission("coreprotect.consumer") && corecommand.equals("consumer")) {
                         permission = true;
                     }
-                    else if (user.hasPermission("coreprotect.networking") && corecommand.equals("network-debug")) {
+                    else if (user.hasPermission("coreprotect.networking") && (corecommand.equals("network-debug") || corecommand.equals("networking"))) {
                         permission = true;
                     }
                 }
 
                 if (corecommand.equals("rollback") || corecommand.equals("restore") || corecommand.equals("rb") || corecommand.equals("rs") || corecommand.equals("ro") || corecommand.equals("re")) {
-                    RollbackRestoreCommand.runCommand(user, command, permission, argumentArray, null, 0, 0);
+                    RollbackRestoreCommand.runCommand(user, commandName, permission, argumentArray, null, 0, 0);
                 }
                 else if (corecommand.equals("apply")) {
-                    ApplyCommand.runCommand(user, command, permission, argumentArray);
+                    ApplyCommand.runCommand(user, commandName, permission, argumentArray);
                 }
                 else if (corecommand.equals("cancel")) {
-                    CancelCommand.runCommand(user, command, permission, argumentArray);
+                    CancelCommand.runCommand(user, commandName, permission, argumentArray);
                 }
                 else if (corecommand.equals("undo")) {
-                    UndoCommand.runCommand(user, command, permission, argumentArray);
+                    UndoCommand.runCommand(user, commandName, permission, argumentArray);
                 }
                 else if (corecommand.equals("help")) {
                     HelpCommand.runCommand(user, permission, argumentArray);
@@ -1223,10 +1223,10 @@ public class CommandHandler implements CommandExecutor {
                     InspectCommand.runCommand(user, permission, argumentArray);
                 }
                 else if (corecommand.equals("lookup") || corecommand.equals("l") || corecommand.equals("page")) {
-                    LookupCommand.runCommand(user, command, permission, argumentArray);
+                    LookupCommand.runCommand(user, commandName, permission, argumentArray);
                 }
                 else if (corecommand.equals("near")) {
-                    LookupCommand.runCommand(user, command, permission, new String[] { "near", "r:5x5" });
+                    LookupCommand.runCommand(user, commandName, permission, new String[] { "near", "r:5x5" });
                 }
                 else if (corecommand.equals("teleport") || corecommand.equals("tp")) {
                     TeleportCommand.runCommand(user, permission, argumentArray);
@@ -1242,6 +1242,9 @@ public class CommandHandler implements CommandExecutor {
                 }
                 else if (corecommand.equals("network-debug")) {
                     NetworkDebugCommand.runCommand(user, permission, argumentArray);
+                }
+                else if (corecommand.equals("networking")) {
+                    NetworkingCommand.runCommand(user, permission, argumentArray);
                 }
                 else {
                     Chat.sendMessage(user, Color.DARK_AQUA + "CoreProtect " + Color.WHITE + "- " + Phrase.build(Phrase.COMMAND_NOT_FOUND, Color.WHITE, "/co " + corecommand));
